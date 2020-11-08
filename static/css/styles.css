@@ -1,0 +1,11 @@
+body {
+    margin: 0;
+    overflow: hidden;
+}
+rect{
+    fill: lightblue;
+}
+
+text{
+    font-size: 1.2em;
+}

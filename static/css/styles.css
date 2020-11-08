@@ -1,11 +1,30 @@
 body {
     margin: 0;
-    overflow: hidden;
+    overflow: scroll;
 }
-rect{
-    fill: lightblue;
+circle{
+    fill: #0288D1;
+    border-radius: 100%;
 }
 
 text{
-    font-size: 1.2em;
+    font-family: sans-serif;
+}
+
+.tick text {
+    fill: #757575;
+}
+
+.tick line {
+    stroke: #E0E0E0;
+}
+
+.axis-label {
+ font-size: 1.2em;
+ fill: #757575;
+}
+
+.title {
+ font-size: 1.5em;
+ fill: #424242;
 }

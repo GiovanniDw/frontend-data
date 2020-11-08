@@ -1,4 +1,4 @@
-import { select, csv, scaleLinear, max, scalePoint, axisLeft, axisBottom, format, text } from 'd3';
+import { select, csv, scaleLinear, max, scaleBand, axisLeft, axisBottom, format, text } from 'd3';
 
 const svg = select('svg');
 
@@ -14,13 +14,12 @@ const render = data => {
 
 	const xScale = scaleLinear()
 		.domain([0, max(data, xValue)])
-		.range([0, innerWidth])
-		.nice();
+		.range([0, innerWidth]);
 
-	const yScale = scalePoint()
+	const yScale = scaleBand()
 		.domain(data.map(yValue))
 		.range([0, innerHeight])
-		.padding(0.8)
+		.padding(0.1)
 
 	const g = svg.append('g')
 		.attr('transform', `translate(${margin.left},${margin.top})`);
@@ -29,12 +28,9 @@ const render = data => {
 		.tickFormat(format('.2s'))
 		.tickSize(-innerHeight);
 
-	const yAxis = axisLeft(yScale)
-		.tickSize(-innerWidth);
-
 	g.append('g')
-		.call(yAxis)
-		.selectAll('.domain')
+		.call(axisLeft(yScale))
+		.selectAll('.domain, .tick line')
 		.remove();
 
 	const xAxisG = g.append('g').call(xAxis)
@@ -49,11 +45,11 @@ const render = data => {
 		.attr('fill', 'black')
 		.text("PenR Capaciteit");
 
-	g.selectAll('circle').data(data)
-		.enter().append('circle')
-		.attr('cy', d => yScale(yValue(d)))
-		.attr('cx', d => xScale(xValue(d)))
-		.attr('r', 10)
+	g.selectAll('rect').data(data)
+		.enter().append('rect')
+		.attr('y', d => yScale(yValue(d)))
+		.attr('width', d => xScale(xValue(d)))
+		.attr('height', yScale.bandwidth())
 	
 	g.append('text')
 		.attr('class', 'title')

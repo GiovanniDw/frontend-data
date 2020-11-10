@@ -1,96 +1,84 @@
-import { select, csv, scaleLinear, extent, scalePoint, axisLeft, axisBottom, format, text } from 'd3';
+import {
+	select,
+	json,
+	geoPath,
+	geoMercator,
+	geoNaturalEarth1,
+	geoGnomonic,
+} from 'd3';
+import { geoConicConformalNetherlands } from 'd3-composite-projections';
+import { feature } from "topojson";
 
-const svg = select('svg');
-
-const width = +svg.attr('width');
-const height = +svg.attr('height');
-
-	// d.capacity = +d.capacity;
-	// d.minimumHeightInMeters = +d.minimumHeightInMeters;
-	// d.openingTimes = +d.openingTimes;
-	// d.id = +d.id;
-
-const render = data => {
-	const title = "Capaciteit Vs Heights";
-
-	const xValue = (d) => d.capacity;
-	const xAxisLabel = 'Capaciteit'
-
-	const yValue = (d) => d.minimumHeightInMeters;
-	const circleRadius = 10;
-	const yAxisLabel = "Min Hoogte";
+const worldData = './static/data/110m.json';
+const nld = "./static/data/nld.json"
 
 
-	const margin = { top: 50, right: 50, bottom: 50, left: 100 }
-	const innerWidth = width - margin.left - margin.right;
-	const innerHeight = height - margin.top - margin.bottom;
 
-	const xScale = scaleLinear()
-		.domain(extent(data, xValue))
-		.range([0, innerWidth])
-		.nice();
+const width = window.innerWidth;
+const height = window.innerHeight;
 
-	const yScale = scaleLinear()
-		.domain(extent(data, yValue))
-		.range([innerHeight, 0])
-		.nice()
+const mapDiv = document.getElementById("map")
+const svg = select(mapDiv).append("svg");
 
-	const g = svg.append('g')
-		.attr('transform', `translate(${margin.left},${margin.top})`);
-	
-	const xAxis = axisBottom(xScale)
-		.tickSize(-innerHeight)
-		.tickPadding(15);
+const scale = 8500;
+const centerLat = 5.5
 
-	const yAxis = axisLeft(yScale)
-		.tickSize(-innerWidth)
-		.tickPadding(10);
+const projection = geoNaturalEarth1();
+const pathGenerator = geoPath().projection(projection);
 
-	const yAxisG = g.append('g').call(yAxis);
-	yAxisG.selectAll('.domain').remove();
-	
-	yAxisG
-		.append('text')
-		.attr('class', 'axis-label')
-		.attr('y', -93)
-		.attr('x', -innerHeight / 2)
-		.attr('fill', 'black')
-		.attr('transform', `rotate(-90)`)
-		.attr('text-anchor', 'middle')
-		.text(yAxisLabel)
 
-	const xAxisG = g.append('g').call(xAxis)
-		.attr('transform', `translate(0,${innerHeight})`);
-	
-	xAxisG.select('.domain').remove();
 
-	xAxisG.append('text')
-		.attr('class', 'axis-label')
-		.attr('y', 40)
-		.attr('x', innerWidth / 2)
-		.attr('fill', 'black')
-		.text(xAxisLabel);
 
-	g.selectAll('circle').data(data)
-		.enter().append('circle')
-		.attr('cy', d => yScale(yValue(d)))
-		.attr('cx', d => xScale(xValue(d)))
-		.attr('r', circleRadius)
-	
-	g.append('text')
-		.attr('class', 'title')
-		.attr('y', -5)
-		.text(title)
-	
+
+
+const drawMap = () => {
+
+svg.append('path')
+	.attr('class', 'sphere')
+	.attr('d', pathGenerator({ type: 'Sphere' }));
+
+json(worldData).then((data) => {
+	const countries = feature(data, data.objects.countries);
+
+	const paths = svg.selectAll('path').data(countries.features);
+
+	paths
+		.enter()
+		.append('path')
+		.attr('class', 'country')
+		.attr('d', (d) => pathGenerator(d));
+});
+
 }
 
-csv('./static/data/OpenParking_PnR.csv').then(data => {
-	data.forEach(d => {
-		d.capacity = +d.capacity;
-		d.minimumHeightInMeters = +d.minimumHeightInMeters;
-		d.openingTimes = +d.openingTimes;
-		d.id = +d.id;
-	})
-	console.log(data)
-	render(data)
-})
+
+
+
+
+
+
+const reSize = () => {
+	const width = mapDiv.clientWidth;
+	const height = mapDiv.clientHeight;
+
+	svg.attr('width', width).attr('height', height);
+
+}
+drawMap();
+reSize();
+window.addEventListener('resize', reSize);
+
+
+
+// json(nld)
+// 	.then(data => {
+// 		console.log(data.objects);
+// 		const province = feature(data, data.objects.subunits);
+// 		console.log(province.features);
+
+// 		const paths = svg.selectAll('path')
+// 			.data(province.features);
+		
+// 		paths.enter().append('path')
+// 			.attr('d', d => pathGenerator(d))
+// 			})

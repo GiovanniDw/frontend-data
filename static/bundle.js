@@ -20200,6 +20200,64 @@ exports.version = version;
 
 var _d = require("d3");
 
-console.log();
+var svg = (0, _d.select)('svg');
+var width = +svg.attr('width');
+var height = +svg.attr('height'); // d.capacity = +d.capacity;
+// d.minimumHeightInMeters = +d.minimumHeightInMeters;
+// d.openingTimes = +d.openingTimes;
+// d.id = +d.id;
+
+var render = function render(data) {
+  var title = "Capaciteit Vs Heights";
+
+  var xValue = function xValue(d) {
+    return d.capacity;
+  };
+
+  var xAxisLabel = 'Capaciteit';
+
+  var yValue = function yValue(d) {
+    return d.minimumHeightInMeters;
+  };
+
+  var circleRadius = 10;
+  var yAxisLabel = "Min Hoogte";
+  var margin = {
+    top: 50,
+    right: 50,
+    bottom: 50,
+    left: 100
+  };
+  var innerWidth = width - margin.left - margin.right;
+  var innerHeight = height - margin.top - margin.bottom;
+  var xScale = (0, _d.scaleLinear)().domain((0, _d.extent)(data, xValue)).range([0, innerWidth]).nice();
+  var yScale = (0, _d.scaleLinear)().domain((0, _d.extent)(data, yValue)).range([innerHeight, 0]).nice();
+  var g = svg.append('g').attr('transform', "translate(".concat(margin.left, ",").concat(margin.top, ")"));
+  var xAxis = (0, _d.axisBottom)(xScale).tickSize(-innerHeight).tickPadding(15);
+  var yAxis = (0, _d.axisLeft)(yScale).tickSize(-innerWidth).tickPadding(10);
+  var yAxisG = g.append('g').call(yAxis);
+  yAxisG.selectAll('.domain').remove();
+  yAxisG.append('text').attr('class', 'axis-label').attr('y', -93).attr('x', -innerHeight / 2).attr('fill', 'black').attr('transform', "rotate(-90)").attr('text-anchor', 'middle').text(yAxisLabel);
+  var xAxisG = g.append('g').call(xAxis).attr('transform', "translate(0,".concat(innerHeight, ")"));
+  xAxisG.select('.domain').remove();
+  xAxisG.append('text').attr('class', 'axis-label').attr('y', 40).attr('x', innerWidth / 2).attr('fill', 'black').text(xAxisLabel);
+  g.selectAll('circle').data(data).enter().append('circle').attr('cy', function (d) {
+    return yScale(yValue(d));
+  }).attr('cx', function (d) {
+    return xScale(xValue(d));
+  }).attr('r', circleRadius);
+  g.append('text').attr('class', 'title').attr('y', -5).text(title);
+};
+
+(0, _d.csv)('./static/data/OpenParking_PnR.csv').then(function (data) {
+  data.forEach(function (d) {
+    d.capacity = +d.capacity;
+    d.minimumHeightInMeters = +d.minimumHeightInMeters;
+    d.openingTimes = +d.openingTimes;
+    d.id = +d.id;
+  });
+  console.log(data);
+  render(data);
+});
 
 },{"d3":31}]},{},[32]);

@@ -1,6 +1,5 @@
 body {
     margin: 0;
-    overflow: scroll;
 }
 circle{
     fill: #0288D1;
@@ -27,4 +26,36 @@ text{
 .title {
  font-size: 1.5em;
  fill: #424242;
+}
+
+path {
+    fill: lightskyblue;
+}
+
+svg {
+    padding-left: auto;
+    padding-right: auto;
+}
+
+.country {
+    fill:lightgreen;
+    stroke: darkgray;
+    stroke-opacity: 0.1;
+}
+
+.sphere {
+    fill: blue;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+}
+
+#map {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }

@@ -27,7 +27,9 @@
   },
   "homepage": "https://github.com/GiovanniDw/functional-programming#readme",
   "dependencies": {
-    "d3": "^6.2.0"
+    "d3": "^6.2.0",
+    "d3-composite-projections": "^1.4.0",
+    "world-atlas": "^2.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",

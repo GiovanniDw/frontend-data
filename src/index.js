@@ -14,8 +14,6 @@ import {
 import { geoConicConformalNetherlands } from 'd3-composite-projections';
 import { feature, mesh } from 'topojson';
 
-import {prepData} from './helpers/prepData'
-
 import { FileAttachment } from "fs";
 import fetch from 'node-fetch';
 
@@ -25,9 +23,10 @@ const nld = './static/data/nld.json';
 const provinceNL = './static/data/provincie_2020.geojson';
 const PenRGeo = './static/data/PenR_Geo.geojson';
 
-const width = 900;
-const height = 600;
+const width = window.innerWidth;
+const height = window.innerHeight;
 
+let centered = null;
 
 // const mapDiv = document.getElementById("map")
 // const root = document.getElementById("root")
@@ -38,7 +37,12 @@ const scale = 5000;
 const centerLat = 5.5;
 
 const projection = geoMercator();
-projection.scale(scale).center([centerLat, 52.1]);
+
+projection
+	.scale(scale)
+	.center([centerLat, 52.1])
+	.translate([width / 2, height / 2]);
+
 const pathGenerator = geoPath().projection(projection);
 
 // const g = svg.append('g');
@@ -64,17 +68,17 @@ const pathGenerator = geoPath().projection(projection);
 // 	})
 // );
 
-const root = document.getElementById('root');
+
 const zoomMap = zoom().scaleExtent([1, 8]).on('zoom', zoomed);
 
-const svg = select("body").append('svg').attr('viewBox', [0, 0, width, height]);
+const svg = select('svg').attr('viewBox', [0, 0, width, height]);
 
-svg.append('rect')
-	.attr('class', 'background')
-	.attr('width', width)
-	.attr('height', height)
+// svg.append('rect')
+// 	.attr('class', 'background')
+// 	.attr('width', width)
+// 	.attr('height', height)
 
-const g = svg.append('g');	
+
 
 
 // const drawNL = () => {
@@ -109,46 +113,32 @@ const g = svg.append('g');
 
 // drawNL()
 
- function zoomed(event) {
-		const { transform } = event;
-		g.attr('transform', transform);
-		g.attr('stroke-width', 1 / transform.k);
- }
 
-
-
-const drawWorld = () => {
-	g.append('path')
-		.attr('class', 'sphere')
-		.attr('d', pathGenerator({ type: 'Sphere' }));
-
-	json(worldData).then((data) => {
-		console.log(data);
-		const countries = feature(data, data.objects.countries);
-		console.log(countries);
-		const paths = g.selectAll('path').data(countries.features);
-
-		paths
-			.enter()
-			.append('path')
-			.attr('class', 'country')
-			.attr('d', (d) => pathGenerator(d));
-	});
+const createViz = () => {
+	drawProvinceNL();
+	drawPenR();
 };
 
 // const province = feature(provinceNLJSON, provinceNLJSON.objects.subunits);
 
 const drawProvinceNL = () => {
 	json(provinceNL).then((data) => {
-		const province = feature(data, data.objects.provincie_2020);
-
-		const paths = svg.selectAll('path').data(province.features);
-
-		paths
-			.enter()
-			.append('path')
+		const provinceData = feature(data, data.objects.provincie_2020);
+		console.log(provinceData)
+		const province = svg
+			.append('g')
+			.attr('class', 'provinces')
+			.attr('cursor', 'pointer')
+			.selectAll('path')
+			.data(provinceData.features)
+			.join('path')
 			.attr('class', 'province')
+			.attr('id', (d) => d.properties.statnaam)
 			.attr('d', (d) => pathGenerator(d))
+			.on('click', clicked)
+		
+		province
+		.append('title').text(d => d.properties.statnaam)
 			
 	});
 };
@@ -170,8 +160,47 @@ const drawPenR = () => {
 
 
 
-drawProvinceNL();
-drawPenR();
-drawWorld();
+createViz()
 
 
+
+const drawWorld = () => {
+	g.attr('id', 'world')
+		.append('path')
+		.attr('class', 'sphere')
+		.attr('d', pathGenerator({ type: 'Sphere' }));
+
+	json(worldData).then((data) => {
+		const countries = feature(data, data.objects.countries);
+		console.log(countries);
+		const paths = g.selectAll('path').data(countries.features);
+
+		paths
+			.enter()
+			.append('path')
+			.attr('class', 'country')
+			.attr('d', (d) => pathGenerator(d));
+	});
+};
+
+
+const clicked = (event, d) => {
+    const [[x0, y0], [x1, y1]] = path.bounds(d);
+    event.stopPropagation();
+    states.transition().style("fill", null);
+    d3.select(this).transition().style("fill", "red");
+    svg.transition().duration(750).call(
+      zoom.transform,
+      d3.zoomIdentity
+        .translate(width / 2, height / 2)
+        .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
+        .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+      d3.pointer(event, svg.node())
+    );
+  }
+
+  function zoomed(event) {
+    const {transform} = event;
+    g.attr("transform", transform);
+    g.attr("stroke-width", 1 / transform.k);
+  }

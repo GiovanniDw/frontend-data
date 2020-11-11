@@ -1,6 +1,6 @@
-import { geoPath } from 'd3';
-import { feature } from 'topojson';
-
+import { geoPath, json } from 'd3';
+// import { feature } from 'topojson';
+import { prepData } from '../helpers/prepData'
 
 
 export const drawWorld = () => {
@@ -24,7 +24,7 @@ export const drawWorld = () => {
 
 // const province = feature(provinceNLJSON, provinceNLJSON.objects.subunits);
 
-const drawProvinceNL = () => {
+export const drawProvinceNL = (provinceNL) => {
 	json(provinceNL).then((data) => {
 		const province = feature(data, data.objects.provincie_2020);
 
@@ -34,7 +34,6 @@ const drawProvinceNL = () => {
 			.enter()
 			.append('path')
 			.attr('class', 'province')
-			.attr('d', (d) => pathGenerator(d))
-			.on('click', clicked);
+			.attr('d', (d) => pathGenerator(d));
 	});
 };

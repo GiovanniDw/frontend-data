@@ -1,7 +1,15 @@
 body {
     margin: 0;
     padding: 0;
-    
+    height: 100vh;
+    width: 100vw;
+
+}
+#root {
+
+    width: 100%;
+    height: 100%;
+  
 }
 circle{
     fill: #0288D1;
@@ -35,8 +43,8 @@ path {
 }
 
 svg {
-    padding-left: auto;
-    padding-right: auto;
+    
+    
 }
 
 .country {
@@ -47,6 +55,10 @@ svg {
 .province {
     fill:lightgreen;
      stroke: white;
+}
+.province:hover {
+        fill:green;
+    fill-opacity: 0.8;
 }
 
 .sphere {

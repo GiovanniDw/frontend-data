@@ -1,5 +1,7 @@
 body {
     margin: 0;
+    padding: 0;
+    
 }
 circle{
     fill: #0288D1;
@@ -29,7 +31,7 @@ text{
 }
 
 path {
-    fill: lightskyblue;
+    fill: lightgreen;
 }
 
 svg {
@@ -38,9 +40,13 @@ svg {
 }
 
 .country {
+    fill:lightgrey;
+    stroke: white;
+    
+}
+.province {
     fill:lightgreen;
-    stroke: darkgray;
-    stroke-opacity: 0.1;
+     stroke: white;
 }
 
 .sphere {
@@ -58,4 +64,10 @@ svg {
     right: 0;
     top: 0;
     bottom: 0;
+}
+
+circle {
+  fill: #fff;
+  fill-opacity: 0.4;
+  stroke: #111;
 }

@@ -1,4 +1,4 @@
-import { json, csv } from 'd3';
+import { json, csv, dsv } from 'd3';
 
 import {removeFalsy, groupBy} from './transform'
 
@@ -12,6 +12,14 @@ export async function prepJSON(url) {
 
 export async function prepCSV(url) {
 	let data = await getCSVData(url);
+	return data;
+}
+
+export async function prepDSV(url) {
+	let data = await getDSVData(url);
+
+	removeFalsy(data);
+
 	return data;
 }
 
@@ -29,5 +37,10 @@ function getJSONData(url) {
 
 function getCSVData(url) {
 	return csv(url)
+}
+
+
+function getDSVData(url) {
+	return dsv(url);
 }
 

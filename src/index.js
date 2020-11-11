@@ -9,18 +9,19 @@ import {
 	zoomIdentity,
 	zoomTransform,
 	pointer,
-	csv
+	csv,
+	dsv
 } from 'd3';
 
 import { feature } from 'topojson-client';
-import {prepCSV, prepData, prepJSON} from './utilities/prepData'
-// const worldData = './static/data/110m.json';
+import {prepCSV, prepData, prepJSON, prepDSV} from './utilities/prepData'
+
 const worldData = './static/data/land-10m.json';
 const nld = './static/data/nld.json';
 const provinceNL = './static/data/provincie_2020.geojson';
 const PenRGeo = './static/data/PenR_Geo.geojson';
 
-const openParkingPenR = './static/data/OpenParking_PnR.csv';
+const openparkingPenR = './static/data/openparkingPenR.csv';
 
 const scale = 5000;
 const centerLat = 5.5;
@@ -34,12 +35,12 @@ const createViz = () => {
 
 
 
-const newData = prepCSV(openParkingPenR);
+const newData = prepDSV(openparkingPenR);
 
 
-newData.then(data => {
-	feature(data, data.objects)
-})
+// newData.then(data => {
+// 	feature(data, data.objects)
+// })
 
 console.log(newData)
 
@@ -83,6 +84,10 @@ const drawProvinceNL = () => {
 
 		svg.call(zoomMap);
 
+		provinces.select('#provinces path.active')
+			.attr('class', 'null').on('click', reset)
+
+
 		function reset() {
 			provinces.transition().style('fill', null);
 			svg.transition()
@@ -97,9 +102,21 @@ const drawProvinceNL = () => {
 		function clicked(event, d) {
 			const [[x0, y0], [x1, y1]] = path.bounds(d);
 			event.stopPropagation();
-			provinces.transition().style('opacity', '0.5');
-			select(this).transition().style('fill', 'red');
-			svg.selectAll("path").classed('active')
+
+			provinces
+				.transition()
+				.style('fill', 'blue')
+				.attr('class', null);
+
+
+			select(this)
+				.transition()
+				.style('fill', 'red')
+				.attr('class', 'active')
+			.selectAll(".active").on('click', remove)
+
+
+			svg.selectAll("path")
 			svg.transition()
 				.duration(750)
 				.call(
@@ -152,7 +169,7 @@ const drawProvinceNL = () => {
 
 
 const drawPenR = () => {
-	csv(openParkingPenR).then((data) => {
+	dsv(openparkingPenR).then((data) => {
 		const g = select('g');
 		const projection = geoMercator().scale(6000).center([5.11, 52.17]);
 		const PenR = data;

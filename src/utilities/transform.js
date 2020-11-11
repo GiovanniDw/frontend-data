@@ -20,4 +20,4 @@ export const isEqual = (...objects) =>
 				(obj) => JSON.stringify(obj) === JSON.stringify(objects[0])
 			);
 
-		
+	

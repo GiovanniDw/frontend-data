@@ -28,7 +28,7 @@ const centerLat = 5.5;
 
 const createViz = () => {
 	drawProvinceNL();
-	drawPenR();
+	// drawPenR();
 	
 	
 };

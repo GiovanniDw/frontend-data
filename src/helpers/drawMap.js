@@ -1,9 +1,9 @@
 import { geoPath, json } from 'd3';
 // import { feature } from 'topojson';
-import { prepData } from '../helpers/prepData'
+import { prepData } from '../utilities/prepData'
 
 
-export const drawWorld = () => {
+export async function drawWorld() {
 	g.append('path')
 		.attr('class', 'sphere')
 		.attr('d', pathGenerator({ type: 'Sphere' }));
@@ -27,9 +27,7 @@ export const drawWorld = () => {
 export const drawProvinceNL = (provinceNL) => {
 	json(provinceNL).then((data) => {
 		const province = feature(data, data.objects.provincie_2020);
-
 		const paths = svg.selectAll('path').data(province.features);
-
 		paths
 			.enter()
 			.append('path')

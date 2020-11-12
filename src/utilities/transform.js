@@ -6,7 +6,6 @@ export const groupBy = (arr, key) =>
 		{}
 	);
 
-
 export const removeFalsy = (arr) => arr.filter(Boolean);
 
 export const slugify = (string) =>
@@ -20,4 +19,5 @@ export const isEqual = (...objects) =>
 				(obj) => JSON.stringify(obj) === JSON.stringify(objects[0])
 			);
 
-	
+export const toObject = (arr, key) =>
+	arr.reduce((a, b) => ({ ...a, [b[key]]: b }), {});

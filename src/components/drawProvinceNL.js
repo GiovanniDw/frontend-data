@@ -1,60 +1,20 @@
-
-import { feature } from 'topojson-client';
-
-
 import {
 	select,
-	json,
 	geoPath,
-	geoMercator,
 	zoom,
 	zoomIdentity,
 	zoomTransform,
 	pointer,
-	csv,
-	dsv,
 } from 'd3';
 
-import {colors} from '../utilities/colors'
+import { feature } from 'topojson-client';
+import { colors } from '../utilities/colors';
 
-// export async function drawWorld() {
-// 	g.append('path')
-// 		.attr('class', 'sphere')
-// 		.attr('d', pathGenerator({ type: 'Sphere' }));
+export const drawProvinceNL = async (svg, mapSettings, provinceData) => {
+	
+const {projection, width, height} = mapSettings
 
-// 	json(worldData).then((data) => {
-// 		console.log(data);
-// 		const countries = feature(data, data.objects.countries);
-// 		console.log(countries);
-// 		const paths = g.selectAll('path').data(countries.features);
-
-// 		paths
-// 			.enter()
-// 			.append('path')
-// 			.attr('class', 'country')
-// 			.attr('d', (d) => pathGenerator(d));
-// 	});
-// };
-
-// // const province = feature(provinceNLJSON, provinceNLJSON.objects.subunits);
-
-// export const drawProvinceNL = (provinceNL) => {
-// 	json(provinceNL).then((data) => {
-// 		const province = feature(data, data.objects.provincie_2020);
-// 		const paths = svg.selectAll('path').data(province.features);
-// 		paths
-// 			.enter()
-// 			.append('path')
-// 			.attr('class', 'province')
-// 			.attr('d', (d) => pathGenerator(d));
-// 	});
-// };
-
-
-
-export const drawProvinceNL = async (svg, projection,  provinceData) => {
 	provinceData.then((data) => {
-		console.log(data);
 		let width = 975;
 		let height = 610;
 		const zoomMap = zoom().scaleExtent([1, 8]).on('zoom', zoomed);
@@ -66,8 +26,9 @@ export const drawProvinceNL = async (svg, projection,  provinceData) => {
 		const provinceData = feature(data, data.objects.provincie_2020);
 
 		const provinces = g
+			.append('g')
+			.attr('id', 'provinces')
 			.attr('fill', null)
-			.attr('id', 'nl')
 			.attr('cursor', 'pointer')
 			.selectAll('path')
 			.data(provinceData.features)
@@ -75,9 +36,8 @@ export const drawProvinceNL = async (svg, projection,  provinceData) => {
 			.enter()
 			.append('path')
 			.attr('id', (d) => d.properties.statnaam)
-			.attr('d', path)
 			.on('click', clicked)
-			.attr('d', (d) => pathGenerator(d));
+			.attr('d', (d) => pathGenerator(d))
 
 		provinces.append('title').text((d) => d.properties.statnaam);
 

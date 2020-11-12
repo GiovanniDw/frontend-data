@@ -33,7 +33,7 @@ let height = window.innerHeight
 const mapSettings = {
 	width: width,
 	height: height,
-	projection: geoMercator().scale(5000).center([5.5584, 52.2093656]),
+	projection: geoMercator().scale(7000).center([5.5584, 52.2093656]),
 };
 
 select(window).on('resize', update);

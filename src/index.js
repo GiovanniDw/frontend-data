@@ -1,5 +1,4 @@
 import 'regenerator-runtime/runtime';
-
 import {
 	select,
 	json,
@@ -18,7 +17,7 @@ import { colors } from './utilities/colors'
 import { feature } from 'topojson-client';
 import { prepCSV, prepDSV, prepJSON } from './utilities/prepData'
 import { drawProvinceNL } from './helpers/drawMap'
-import { color } from '../static/bundle';
+
 
 const worldData = './static/data/land-10m.json';
 const nld = './static/data/nld.json';
@@ -27,21 +26,30 @@ const PenRGeo = './static/data/PenR_Geo.geojson';
 
 const openparkingPenR = './static/data/openparkingPenR.csv';
 
+
+const projection = geoMercator().scale(6000).center([5.11, 52.17]);
+
 const scale = 5000;
 const centerLat = 5.5;
 
 
+console.log(colors.blue)
+
+let width = 975;
+let height = 610;
 
 
+const svg = select('svg').attr('viewBox', [0, 0, width, height]);
+const g = svg.append('g');
 
+const PenR = prepCSV(openparkingPenR);
+const provinceData = prepJSON(provinceNL)
 
 async function createViz() {
-	const provinceData = await getProvinceData()
-
-	drawProvinceNL(provinceNL);
-	drawPenR();
 	
-	
+	await drawPenR(svg, projection);
+	await drawProvinceNL(svg, projection, provinceData);
+	console.log(+svg.attr('width'));
 };
 
 async function getProvinceData() {
@@ -52,49 +60,20 @@ async function getProvinceData() {
 
 
 
-const PenR = prepCSV(openparkingPenR);
 
 
-
-// const drawPenR = () => {
-// 	json(PenRGeo).then((data) => {
-// 		const g = select('g');
-// 		const projection = geoMercator()
-// 			.scale(6000)
-// 			.center([5.11, 52.17]);
-// 		const PenR = data.features;
-// 			g
-// 			.selectAll('circle')
-// 			.data(PenR)
-// 			.enter()
-// 			.append('circle')
-// 			.attr('r', 1)
-// 			.attr('cx', (d) => projection(d.geometry.coordinates)[0])
-// 			.attr('cy', (d) => projection(d.geometry.coordinates)[1])
-// 			.append('text').text((d) => d.properties.areadesc)
-// 	});
-// };
-
-
-const svg = select('svg')
-
-const g = select('g')
-
-
-
-const drawPenR = () => {
+const drawPenR = async (svg, projection) => {
 	PenR.then((data) => {
-		const g = select('g');
-		const projection = geoMercator().scale(6000).center([5.11, 52.17]);
-		const PenR = data;
-		g.selectAll('circle')
-			.data(PenR)
+	 svg = select('g');	
+		svg.selectAll('circle')
+			.data(data)
 			.enter()
 			.append('circle')
-			.attr('r', 5)
+			.attr('class', 'circle')
+			.attr('r', '1')
 			.attr('cx', (d) => projection([d.longitude, d.latitude])[0])
 			.attr('cy', (d) => projection([d.longitude, d.latitude])[1])
-			.attr('fill', colors.red )
+			.attr('fill', colors.blue)
 			.append('text')
 			.text((d) => d.areadesc);
 		console.log(PenR)

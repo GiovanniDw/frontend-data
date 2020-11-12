@@ -15,6 +15,8 @@ import {
 	dsv,
 } from 'd3';
 
+import {colors} from '../utilities/colors'
+
 // export async function drawWorld() {
 // 	g.append('path')
 // 		.attr('class', 'sphere')
@@ -50,28 +52,22 @@ import {
 
 
 
-export const drawProvinceNL = (provinceNL) => {
-	json(provinceNL).then((data) => {
+export const drawProvinceNL = async (svg, projection,  provinceData) => {
+	provinceData.then((data) => {
 		console.log(data);
 		let width = 975;
 		let height = 610;
 		const zoomMap = zoom().scaleExtent([1, 8]).on('zoom', zoomed);
 		const path = geoPath();
-
-		const svg = select('svg')
-			.attr('viewBox', [0, 0, width, height])
-			.on('click', reset);
-
-		const g = svg.append('g');
-
-		const projection = geoMercator().scale(6000).center([5.11, 52.17]);
+		svg.on('click', reset);
+		const g = svg.select('g')
+		
 		const pathGenerator = path.projection(projection);
 		const provinceData = feature(data, data.objects.provincie_2020);
 
 		const provinces = g
-			.append('g')
-			.attr('fill', '#777')
-			.attr('id', 'provinces')
+			.attr('fill', null)
+			.attr('id', 'nl')
 			.attr('cursor', 'pointer')
 			.selectAll('path')
 			.data(provinceData.features)
@@ -106,11 +102,14 @@ export const drawProvinceNL = (provinceNL) => {
 			const [[x0, y0], [x1, y1]] = path.bounds(d);
 			event.stopPropagation();
 
-			provinces.transition().style('fill', 'blue').attr('class', null);
+			provinces.transition().duration(1000)
+				.style('fill', colors.darkGray)
+				.attr('class', null);
 
 			select(this)
 				.transition()
-				.style('fill', 'red')
+				.style('fill', colors.lightGreen)
+				.style('stroke', colors.darkGray)
 				.attr('class', 'active')
 				.selectAll('.active')
 				.on('click', reset);

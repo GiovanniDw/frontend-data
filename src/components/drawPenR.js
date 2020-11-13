@@ -1,12 +1,12 @@
 import {colors} from '../utilities/colors'
 
-export async function drawPenR(svg, mapSettings, PenRData) {
+export const drawPenR = async (svg, mapSettings, PenRData) => {
 
     const { projection, width, height } = mapSettings
 
     PenRData.then((data) => {
         const g = svg.select('g');
-        const PenRLocation = g
+            g
             .append('g')
             .attr('id', 'p_r_locations')
             .selectAll('circle')

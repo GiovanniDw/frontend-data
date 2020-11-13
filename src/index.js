@@ -35,9 +35,10 @@ const mapSettings = {
 	width: width,
 	height: height,
 	projection: geoMercator().scale(scale).center([5.5584, 52.2093656]),
+	title: "P+R Mogelijkheden per profincie."
 };
 
-select(window).on('resize', update);
+select(window).on('resize', update());
 
 function update() {
 	width = window.innerWidth

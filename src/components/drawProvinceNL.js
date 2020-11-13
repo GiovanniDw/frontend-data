@@ -10,13 +10,12 @@ import {
 
 import { feature, mesh } from 'topojson-client';
 import { colors } from '../utilities/colors';
+import { zoomMap } from '../helpers'
 
 export const drawProvinceNL = async (svg, mapSettings, nl) => {
 const {projection, width, height} = mapSettings
 	const g = svg.select('g');
-	const provinces = g
-	const gemeentes = g
-	const zoomMap = zoom().scaleExtent([1, 8]).on('zoom', zoomed);
+	const zoomMap = zoom().scaleExtent([2, 8]).on('zoom', zoomed);
 	const path = geoPath();
 	svg.on('click', reset);
 
@@ -25,17 +24,14 @@ const {projection, width, height} = mapSettings
 		const province = feature(data, data.objects.provincie_2020);
 		const gemeente = feature(data, data.objects.gemeente_2020);
 
-
-	
-
 		g.append('g')
 			.attr('id', 'gemeentes')
 			.selectAll('path')
 			.data(gemeente.features)
-			.attr('class', "gemeente")
+			.attr('class', 'gemeente')
 			.enter()
 			.append('path')
-			.attr('d', (d) => pathGenerator(d))
+			.attr('d', path)
 			.attr('stroke', null);
 
 			g.append('g')
@@ -47,11 +43,11 @@ const {projection, width, height} = mapSettings
 				.attr('class', 'province')
 				.enter()
 				.append('path')
-				.attr('fill', colors.green)
+				.attr('fill', colors.lightGreen)
 				.attr('id', (d) => d.properties.statnaam)
 				.attr('class', 'province')
 				.on('click', clicked)
-				.attr('d', (d) => pathGenerator(d));
+				.attr('d', path);
 		
 		svg.call(zoomMap);
 		// svg.selectAll('.active').attr('class', 'null').on('click', reset);
@@ -59,13 +55,15 @@ const {projection, width, height} = mapSettings
 	
 
 
-		function reset() {
+	function reset() {
+			
+			select('.province')
+			.transition()
+			.duration(760)
+			.style('fill-opacity', '1');
 			select(this)
 				.transition()
-				.attr('fill', null)
-			svg.transition()
 				.duration(750)
-				// .attr('fill', null)
 				.call(
 					zoomMap.transform,
 					zoomIdentity,
@@ -74,11 +72,13 @@ const {projection, width, height} = mapSettings
 		}
 
 	
-		function clicked(event, d) {
+	function clicked(event, d) {
+
+			console.log(path.bounds(d))
 			const [[x0, y0], [x1, y1]] = path.bounds(d);
 			event.stopPropagation();
 
-				g.select('.gemeentes')
+		g.selectAll('.province')
 				.select('path')
 				.transition()
 				.duration(1000)
@@ -88,7 +88,6 @@ const {projection, width, height} = mapSettings
 			select(this)
 				.transition()
 				.style('fill-opacity', '0.5')
-				.attr('class', 'active')
 				
 				
 
@@ -102,7 +101,7 @@ const {projection, width, height} = mapSettings
 						.scale(
 							Math.min(
 								8,
-								0.9 /
+								0.5 /
 									Math.max(
 										(x1 - x0) / width,
 										(y1 - y0) / height

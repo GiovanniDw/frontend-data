@@ -23,8 +23,8 @@
 html {
     background-color: var(--white);
     
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
 }
 
 body {
@@ -54,11 +54,11 @@ text{
 }
 
 .tick text {
-    fill: #757575;
+    /* fill: #757575; */
 }
 
 .tick line {
-    stroke: #E0E0E0;
+    /* stroke: #E0E0E0; */
 }
 
 .axis-label {
@@ -68,19 +68,19 @@ text{
 
 .title {
  font-size: 1.5em;
- fill: #424242;
+ /* fill: #424242; */
 }
 /* 
 path {
     fill: lightgreen;
 } */
-
+/* 
 svg path{
    stroke-linejoin: round;
    stroke-linecap: round;
    transition-duration: .7s;
     
-}
+} */
 
 
 .province {
@@ -100,7 +100,7 @@ svg path{
 }
 
 .sphere {
-    fill: blue;
+    /* fill: blue; */
     top: 0;
     left: 0;
     right: 0;

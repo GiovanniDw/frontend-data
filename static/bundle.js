@@ -21451,7 +21451,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.drawPenR = drawPenR;
+exports.drawPenR = void 0;
 
 var _colors = require("../utilities/colors");
 
@@ -21491,12 +21491,8 @@ function _asyncToGenerator(fn) {
   };
 }
 
-function drawPenR(_x, _x2, _x3) {
-  return _drawPenR.apply(this, arguments);
-}
-
-function _drawPenR() {
-  _drawPenR = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(svg, mapSettings, PenRData) {
+var drawPenR = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(svg, mapSettings, PenRData) {
     var projection, width, height;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
@@ -21505,7 +21501,7 @@ function _drawPenR() {
             projection = mapSettings.projection, width = mapSettings.width, height = mapSettings.height;
             PenRData.then(function (data) {
               var g = svg.select('g');
-              var PenRLocation = g.append('g').attr('id', 'p_r_locations').selectAll('circle').data(data).enter().append('circle').attr('class', 'circle').attr('r', '1').attr('cx', function (d) {
+              g.append('g').attr('id', 'p_r_locations').selectAll('circle').data(data).enter().append('circle').attr('class', 'circle').attr('r', '1').attr('cx', function (d) {
                 return projection([d.longitude, d.latitude])[0];
               }).attr('cy', function (d) {
                 return projection([d.longitude, d.latitude])[1];
@@ -21521,10 +21517,15 @@ function _drawPenR() {
       }
     }, _callee);
   }));
-  return _drawPenR.apply(this, arguments);
-}
 
-},{"../utilities/colors":38}],35:[function(require,module,exports){
+  return function drawPenR(_x, _x2, _x3) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+exports.drawPenR = drawPenR;
+
+},{"../utilities/colors":39}],35:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21537,6 +21538,8 @@ var _d2 = require("d3");
 var _topojsonClient = require("topojson-client");
 
 var _colors = require("../utilities/colors");
+
+var _helpers = require("../helpers");
 
 function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
@@ -21633,63 +21636,59 @@ function _asyncToGenerator(fn) {
 }
 
 var drawProvinceNL = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(svg, mapSettings, provinceData) {
-    var projection, width, height;
+  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(svg, mapSettings, nl) {
+    var projection, width, height, g, zoomMap, path, reset, clicked, zoomed;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            zoomed = function _zoomed(event) {
+              var transform = event.transform;
+              g.attr('transform', transform);
+              g.attr('stroke-width', 1 / transform.k);
+            };
+
+            clicked = function _clicked(event, d) {
+              console.log(path.bounds(d));
+
+              var _path$bounds = path.bounds(d),
+                  _path$bounds2 = _slicedToArray(_path$bounds, 2),
+                  _path$bounds2$ = _slicedToArray(_path$bounds2[0], 2),
+                  x0 = _path$bounds2$[0],
+                  y0 = _path$bounds2$[1],
+                  _path$bounds2$2 = _slicedToArray(_path$bounds2[1], 2),
+                  x1 = _path$bounds2$2[0],
+                  y1 = _path$bounds2$2[1];
+
+              event.stopPropagation();
+              g.selectAll('.province').select('path').transition().duration(1000).style('fill', _colors.colors.red).style('stroke', _colors.colors.darkGray);
+              (0, _d2.select)(this).transition().style('fill-opacity', '0.5');
+              svg.selectAll('path');
+              svg.transition().duration(750).call(zoomMap.transform, _d2.zoomIdentity.translate(width / 2, height / 2).scale(Math.min(8, 0.5 / Math.max((x1 - x0) / width, (y1 - y0) / height))).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), (0, _d2.pointer)(event, svg.node()));
+            };
+
+            reset = function _reset() {
+              (0, _d2.select)('.province').transition().duration(760).style('fill-opacity', '1');
+              (0, _d2.select)(this).transition().duration(750).call(zoomMap.transform, _d2.zoomIdentity, (0, _d2.zoomTransform)(svg.node()).invert([width / 2, height / 2]));
+            };
+
             projection = mapSettings.projection, width = mapSettings.width, height = mapSettings.height;
-            provinceData.then(function (data) {
-              var width = 975;
-              var height = 610;
-              var zoomMap = (0, _d2.zoom)().scaleExtent([1, 8]).on('zoom', zoomed);
-              var path = (0, _d2.geoPath)();
-              svg.on('click', reset);
-              var g = svg.select('g');
+            g = svg.select('g');
+            zoomMap = (0, _d2.zoom)().scaleExtent([2, 8]).on('zoom', zoomed);
+            path = (0, _d2.geoPath)();
+            svg.on('click', reset);
+            nl.then(function (data) {
               var pathGenerator = path.projection(projection);
-              var provinceData = (0, _topojsonClient.feature)(data, data.objects.provincie_2020);
-              var provinces = g.append('g').attr('id', 'provinces').attr('fill', null).attr('cursor', 'pointer').selectAll('path').data(provinceData.features).attr('class', 'province').enter().append('path').attr('id', function (d) {
+              var province = (0, _topojsonClient.feature)(data, data.objects.provincie_2020);
+              var gemeente = (0, _topojsonClient.feature)(data, data.objects.gemeente_2020);
+              g.append('g').attr('id', 'gemeentes').selectAll('path').data(gemeente.features).attr('class', 'gemeente').enter().append('path').attr('d', path).attr('stroke', null);
+              g.append('g').attr('id', 'provinces').attr('cursor', 'pointer').selectAll('path').data(province.features).attr('stroke', _colors.colors.light).attr('class', 'province').enter().append('path').attr('fill', _colors.colors.lightGreen).attr('id', function (d) {
                 return d.properties.statnaam;
-              }).on('click', clicked).attr('d', function (d) {
-                return pathGenerator(d);
-              });
-              provinces.append('title').text(function (d) {
-                return d.properties.statnaam;
-              });
-              svg.call(zoomMap);
-              svg.select('#provinces path.active').attr('class', 'null').on('click', reset);
-
-              function reset() {
-                provinces.transition().style('fill', null);
-                svg.transition().duration(750).call(zoomMap.transform, _d2.zoomIdentity, (0, _d2.zoomTransform)(svg.node()).invert([width / 2, height / 2]));
-              }
-
-              function clicked(event, d) {
-                var _path$bounds = path.bounds(d),
-                    _path$bounds2 = _slicedToArray(_path$bounds, 2),
-                    _path$bounds2$ = _slicedToArray(_path$bounds2[0], 2),
-                    x0 = _path$bounds2$[0],
-                    y0 = _path$bounds2$[1],
-                    _path$bounds2$2 = _slicedToArray(_path$bounds2[1], 2),
-                    x1 = _path$bounds2$2[0],
-                    y1 = _path$bounds2$2[1];
-
-                event.stopPropagation();
-                provinces.transition().duration(1000).style('fill', _colors.colors.darkGray).attr('class', null);
-                (0, _d2.select)(this).transition().style('fill', _colors.colors.lightGreen).style('stroke', _colors.colors.darkGray).attr('class', 'active').selectAll('.active').on('click', reset);
-                svg.selectAll('path');
-                svg.transition().duration(750).call(zoomMap.transform, _d2.zoomIdentity.translate(width / 2, height / 2).scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height))).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), (0, _d2.pointer)(event, svg.node()));
-              }
-
-              function zoomed(event) {
-                var transform = event.transform;
-                g.attr('transform', transform);
-                g.attr('stroke-width', 1 / transform.k);
-              }
+              }).attr('class', 'province').on('click', clicked).attr('d', path);
+              svg.call(zoomMap); // svg.selectAll('.active').attr('class', 'null').on('click', reset);
             });
 
-          case 2:
+          case 9:
           case "end":
             return _context.stop();
         }
@@ -21704,7 +21703,7 @@ var drawProvinceNL = /*#__PURE__*/function () {
 
 exports.drawProvinceNL = drawProvinceNL;
 
-},{"../utilities/colors":38,"d3":31,"topojson-client":33}],36:[function(require,module,exports){
+},{"../helpers":37,"../utilities/colors":39,"d3":31,"topojson-client":33}],36:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21728,6 +21727,9 @@ var _drawPenR = require("./drawPenR");
 var _drawProvinceNL = require("./drawProvinceNL");
 
 },{"./drawPenR":34,"./drawProvinceNL":35}],37:[function(require,module,exports){
+"use strict";
+
+},{}],38:[function(require,module,exports){
 "use strict";
 
 require("regenerator-runtime/runtime");
@@ -21774,49 +21776,53 @@ function _asyncToGenerator(fn) {
   };
 }
 
-var provinceNL = './static/data/provincie_2020.geojson';
+var provinceNL = './static/data/provincie_2020.topojson';
+var nldJSON = './static/data/nl_2020.json';
+var gemeenteNL = './static/data/gemeente_2020.topojson';
 var openparkingPenR = './static/data/openparkingPenR.csv';
-var scale = 5000;
-var centerLat = 5.5; // const getSize = {
-// 	width = 
-// // }
-
+var geoGemeente = 'https://cartomap.github.io/nl/wgs84/gemeente_2020.geojson';
+var geoProvincie = 'https://cartomap.github.io/nl/wgs84/provincie_2020.geojson';
+var scale = 7000;
+var centerLat = 5.5;
 var width = window.innerWidth;
 var height = window.innerHeight;
 var mapSettings = {
   width: width,
   height: height,
-  projection: (0, _d.geoMercator)().scale(5000).center([5.5584, 52.2093656])
+  projection: (0, _d.geoMercator)().scale(scale).center([5.5584, 52.2093656]),
+  title: "P+R Mogelijkheden per profincie."
 };
-(0, _d.select)(window).on('resize', update);
+(0, _d.select)(window).on('resize', update());
 
 function update() {
   width = window.innerWidth;
   height = window.innerHeight;
-  console.log(width);
 }
 
 var svg = (0, _d.select)('svg').attr('viewBox', [0, 0, 900, 600]).attr('width', "100%").attr('height', "100%");
 var g = svg.append('g').attr("id", 'nl');
 var PenRData = (0, _prepData.prepCSV)(openparkingPenR);
 var provinceData = (0, _prepData.prepJSON)(provinceNL);
+var gemeenteData = (0, _prepData.prepJSON)(gemeenteNL);
+var nlData = (0, _prepData.prepJSON)(nldJSON);
 
-function createViz() {
-  return _createViz.apply(this, arguments);
+function combineNLData() {
+  return _combineNLData.apply(this, arguments);
 }
 
-function _createViz() {
-  _createViz = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+function _combineNLData() {
+  _combineNLData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+    var data;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             _context.next = 2;
-            return (0, _components.drawPenR)(svg, mapSettings, PenRData);
+            return (0, _prepData.combineDatasets)(provinceData, gemeenteData);
 
           case 2:
-            _context.next = 4;
-            return (0, _components.drawProvinceNL)(svg, mapSettings, provinceData);
+            data = _context.sent;
+            return _context.abrupt("return", data);
 
           case 4:
           case "end":
@@ -21825,13 +21831,42 @@ function _createViz() {
       }
     }, _callee);
   }));
+  return _combineNLData.apply(this, arguments);
+}
+
+console.log(combineNLData());
+
+function createViz() {
+  return _createViz.apply(this, arguments);
+}
+
+function _createViz() {
+  _createViz = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.next = 2;
+            return (0, _components.drawPenR)(svg, mapSettings, PenRData);
+
+          case 2:
+            _context2.next = 4;
+            return (0, _components.drawProvinceNL)(svg, mapSettings, nlData);
+
+          case 4:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
   return _createViz.apply(this, arguments);
 }
 
 ;
 createViz();
 
-},{"./components":36,"./utilities/prepData":39,"d3":31,"regenerator-runtime/runtime":32}],38:[function(require,module,exports){
+},{"./components":36,"./utilities/prepData":40,"d3":31,"regenerator-runtime/runtime":32}],39:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21859,7 +21894,7 @@ var colors = {
 };
 exports.colors = colors;
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21867,8 +21902,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.prepJSON = prepJSON;
 exports.prepCSV = prepCSV;
+exports.combineDatasets = void 0;
 
 var _d2 = require("d3");
+
+var _topojsonClient = require("topojson-client");
 
 var _transform = require("./transform");
 
@@ -21982,10 +22020,9 @@ function _prepJSON() {
 
           case 2:
             data = _context.sent;
-            console.log(data);
             return _context.abrupt("return", data);
 
-          case 5:
+          case 4:
           case "end":
             return _context.stop();
         }
@@ -22015,7 +22052,7 @@ function _prepCSV() {
 
           case 2:
             data = _context2.sent;
-            console.log(data);
+            (0, _transform.uniqueObjects)(data);
             return _context2.abrupt("return", data);
 
           case 5:
@@ -22051,9 +22088,8 @@ function _getCSVData() {
           case 7:
             _context3.prev = 7;
             _context3.t0 = _context3["catch"](0);
-            console.log(_context3.t0);
 
-          case 10:
+          case 9:
           case "end":
             return _context3.stop();
         }
@@ -22061,6 +22097,25 @@ function _getCSVData() {
     }, _callee3, null, [[0, 7]]);
   }));
   return _getCSVData.apply(this, arguments);
+}
+
+var combineDatasets = function combineDatasets(f, s) {
+  console.log(f); // const first = await handleTopoJson(f);
+  // const second = await handleTopoJson(s);
+  // const combinedData = {}
+};
+
+exports.combineDatasets = combineDatasets;
+
+function handleTopoJson(file) {
+  try {
+    file.then(function (data) {
+      var newData = (0, _topojsonClient.feature)(data, data.objects[0]);
+      return newData;
+    });
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 function getData(url, endPoint) {
@@ -22083,13 +22138,13 @@ function cleanData(row) {
   return data;
 }
 
-},{"./transform":40,"d3":31}],40:[function(require,module,exports){
+},{"./transform":41,"d3":31,"topojson-client":33}],41:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.toObject = exports.isEqual = exports.slugify = exports.removeFalsy = exports.groupBy = void 0;
+exports.uniqueObjects = exports.toObject = exports.isEqual = exports.slugify = exports.removeFalsy = exports.groupBy = void 0;
 
 function ownKeys(object, enumerableOnly) {
   var keys = Object.keys(object);
@@ -22215,4 +22270,12 @@ var toObject = function toObject(arr, key) {
 
 exports.toObject = toObject;
 
-},{}]},{},[37]);
+var uniqueObjects = function uniqueObjects(arr) {
+  return _toConsumableArray(new Map(arr.map(function (item) {
+    return [item.id, item];
+  })).values());
+};
+
+exports.uniqueObjects = uniqueObjects;
+
+},{}]},{},[38]);

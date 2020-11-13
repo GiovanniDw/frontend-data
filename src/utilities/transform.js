@@ -21,3 +21,8 @@ export const isEqual = (...objects) =>
 
 export const toObject = (arr, key) =>
 	arr.reduce((a, b) => ({ ...a, [b[key]]: b }), {});
+
+
+	export const uniqueObjects = (arr) => [
+		...new Map(arr.map((item) => [item.id, item])).values(),
+	];

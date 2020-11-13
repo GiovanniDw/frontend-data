@@ -28,6 +28,7 @@
   "homepage": "https://github.com/GiovanniDw/functional-programming#readme",
   "dependencies": {
     "d3": "^6.2.0",
+    "d3-collection": "^1.0.7",
     "d3-composite-projections": "^1.4.0",
     "topojson-client": "^3.1.0",
     "topojson-simplify": "^3.0.3",
@@ -61,6 +62,15 @@
     "vinyl-source-stream": "^2.0.0"
   },
   "browserify": {
-    "transform": [["babelify", { "presets": ["@babel/preset-env"] }]]
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "@babel/preset-env"
+          ]
+        }
+      ]
+    ]
   }
 }

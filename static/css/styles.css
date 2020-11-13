@@ -1,23 +1,27 @@
 :root {
-    color-scheme: light dark;
-    --special-text-color: hsla(60, 100%, 50%, 0.5);
-    --border-color: black;
-}
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --special-text-color: hsla(60, 50%, 70%, 0.75);
-        --border-color: white;
-    }
-}
-
-.special {
-    color: var(--special-text-color);
-    border: 1px solid var(--border-color);
+--darkBlue: #2F80ED;
+--blue: #2D9CDB;
+--lightBlue: #56CCF2;
+--dark: #333333;
+--darkGray: #4F4F4F;
+--midGray: #828282;
+--lightGray: #BDBDBD;
+--light: #E0E0E0;
+--white: #F2F2F2;
+--darkGreen: #219653;
+--green: #27AE60;
+--lightGreen: #6FCF97;
+--orange: #F2994A;
+--darkPurple: #9B51E0;
+--purple: #BB6BD9;
+--red: #EB5757;
+--yellow: #F2C94C;
 }
 
 
 html {
+    background-color: var(--white);
     
     height: 100vh;
     width: 100vw;
@@ -66,27 +70,32 @@ text{
  font-size: 1.5em;
  fill: #424242;
 }
-
+/* 
 path {
     fill: lightgreen;
-}
+} */
 
-svg {
-   
+svg path{
+   stroke-linejoin: round;
+   stroke-linecap: round;
+   transition-duration: .7s;
     
 }
 
-.country {
-    fill:lightgrey;
-    stroke: white;
-    
-}
+
 .province {
-    fill:lightgreen;
+    stroke-opacity: 0.5;
+    /* stroke-width: 1px; */
      stroke: white;
+     
+}
+.gemeente {
+    fill-opacity: 1;
+    
+     /* stroke: white; */
 }
 .province:hover {
-        fill:green;
+        /* fill:green; */
     fill-opacity: 0.8;
 }
 
@@ -108,13 +117,7 @@ svg {
     bottom: 0;
 }
 
-circle {
-  fill: #fff;
-  fill-opacity: 0.4;
-  stroke: #111;
-}
-
 .background {
-  fill: none;
+
   pointer-events: all;
 }

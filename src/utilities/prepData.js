@@ -1,10 +1,13 @@
 import { json, csv } from 'd3';
 
-import {removeFalsy, groupBy, toObject, slugify} from './transform'
+import { feature } from 'topojson-client';
+
+
+import {removeFalsy, groupBy, toObject, slugify, uniqueObjects} from './transform'
 
 export async function prepJSON(url) {
 	let data = await getJSONData(url)
-	console.log(data)
+	
         return data
 }
 function getJSONData(url) {
@@ -14,7 +17,8 @@ function getJSONData(url) {
 
 export async function prepCSV(url) {
 	let data = await getCSVData(url)
-	console.log(data)
+	
+	uniqueObjects(data);
 	return data;
 }
 
@@ -23,11 +27,32 @@ async function getCSVData(url) {
 		const data = await csv(url);
 		return data
 	} catch (err) {
-		console.log(err)
+		
 	}
 	
 }
+export const combineDatasets = (f, s) => {
 
+	console.log(f)
+
+	// const first = await handleTopoJson(f);
+	// const second = await handleTopoJson(s);
+	// const combinedData = {}
+}
+
+
+function handleTopoJson(file) {
+	try {
+file.then((data) => {
+	const newData = feature(data, data.objects[0]);
+	return newData
+})
+	} catch (err) {
+console.error(err);
+	}
+	
+
+}
 
 function getData(url, endPoint) {
     return json(url + endPoint).then(data.results.bindings)
@@ -44,4 +69,5 @@ function cleanData(row) {
 	});
 	return data;
 }
+
 

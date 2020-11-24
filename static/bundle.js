@@ -21555,7 +21555,7 @@ function _asyncToGenerator(fn) {
 
 var drawNL = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(svg, mapSettings, nl) {
-    var projection, width, height, g, zoomMap, path, provinces, gemeentes, reset, clicked, zoomed;
+    var projection, width, height, g, zoomMap, path, provinces, active, reset, clicked, zoomed;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -21577,39 +21577,26 @@ var drawNL = /*#__PURE__*/function () {
                   y1 = _path$bounds2$2[1];
 
               event.stopPropagation();
-              provinces.transition().style('stroke', "white").attr('class', 'active'); // .select('path')
-              // .transition()
-              // .duration(1000)
-              // .style('fill', colors.red)
-              // .style('stroke', colors.darkGray);
-
-              (0, _d2.select)(this).transition().style('stroke', 'green');
+              if (active.node() === this) reset();
+              active.classed('active', false);
+              active = (0, _d2.select)(this).classed('active', true);
               svg.selectAll('path');
               svg.transition().duration(750).call(zoomMap.transform, _d2.zoomIdentity.translate(width / 2, height / 2).scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height))).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), (0, _d2.pointer)(event, svg.node()));
             };
 
             reset = function _reset() {
               provinces.transition().style('fill', null).attr('class', null);
-              svg.transition().duration(750).call(zoomMap.transform, _d2.zoomIdentity, (0, _d2.zoomTransform)(svg.node()).invert([width / 2, height / 2])); // select('.province')
-              // .transition()
-              // .duration(760)
-              // .style('fill-opacity', '1');
-              // select(this)
-              // 	.transition()
-              // 	.duration(750)
-              // 	.call(
-              // 		zoomMap.transform,
-              // 		zoomIdentity,
-              // 		zoomTransform(svg.node()).invert([width / 2, height / 2])
-              // 	);
+              svg.transition().duration(750).call(zoomMap.transform, _d2.zoomIdentity, (0, _d2.zoomTransform)(svg.node()).invert([width / 2, height / 2]));
+              active.classed('active', false);
+              active = (0, _d2.select)(null);
             };
 
             projection = mapSettings.projection, width = mapSettings.width, height = mapSettings.height;
             g = svg.select('g');
             zoomMap = (0, _d2.zoom)().scaleExtent([1, 8]).on('zoom', zoomed);
             path = (0, _d2.geoPath)();
-            provinces = g.append('g');
-            gemeentes = g.append('g');
+            provinces = g.select('g');
+            active = (0, _d2.select)(null);
             svg.on('click', reset);
             nl.then(function (data) {
               var pathGenerator = path.projection(projection); // const province = mesh(data, data.objects.provincie_2020, (a,b) => a !== b );
@@ -21617,45 +21604,13 @@ var drawNL = /*#__PURE__*/function () {
 
               var gemeente = (0, _topojsonClient.feature)(data, data.objects.gemeente_2020);
               var province = (0, _topojsonClient.feature)(data, data.objects.provincie_2020);
-              var provinceBorder = (0, _topojsonClient.mesh)(data, data.objects.gemeente_2020, function (a, b) {
+              var provinceBorder = (0, _topojsonClient.mesh)(data, data.objects.provincie_2020, function (a, b) {
                 return a !== b;
               });
-              gemeentes.attr('id', 'gemeentes').selectAll('path').data(gemeente.features).enter().append('path').attr('d', path).attr('class', 'gemeente-border').on('click', reset);
-              provinces.attr('id', 'provinces').selectAll('path').data(province.features).enter().append('path').attr('d', path).attr('class', 'province').on('click', clicked);
-              g.append('path').datum(provinceBorder).attr('id', 'province-borders').attr('d', path); // provinces
-              // 	.attr('id', 'province')
-              // 	.datum(province)
-              // 	.attr('fill', 'none')
-              // 	.attr('stroke', 'none')
-              // 	.attr('stroke-linejoin', 'round')
-              // 	.attr('d', path)
-              // 	.append('title')
-              // 	.text((d) => d.properties.statnaam);
-              // provinces
-              // 	.attr('id', 'provinces')
-              // 	.attr('fill', colors.lightGreen)
-              // 	.attr('stroke', colors.light)
-              // 	.selectAll('path')
-              // 	.data(province.features)
-              // 	.join('path')
-              // 	.attr('d', path)
-              // 	.on('click', clicked);
-              // provinces
-              // 	.append('path')
-              // 	.attr('class', 'province')
-              // 	.datum(gemeente)
-              // 	.attr('fill', 'none')
-              // 	.attr('stroke', 'none')
-              // 	.attr('stroke-linejoin', 'round')
-              // 	.attr('d', path)
-              // 	.append('title').text((d) => d.properties.statnaam)
-              // provinces.append('g')
-              // 	.attr('fill', 'none')
-              // 	.attr('stroke', 'red')
-              // 	.selectAll('path')
-              // 	.attr('fill', colors.lightGreen);
-              // svg.call(zoomMap);
-              // return svg.node()
+              g.append('g').attr('id', 'gemeentes').selectAll('path').data(gemeente.features).enter().append('path').attr('d', pathGenerator).attr('class', 'gemeente-grens').on('click', reset);
+              g.append('g').attr('id', 'provinces').selectAll('path').data(province.features).enter().append('path').attr('d', pathGenerator).attr('class', 'province').on('click', clicked);
+              g.append('path').datum(provinceBorder).attr('id', 'province-borders').attr('d', pathGenerator);
+              svg.call(zoomMap);
             });
 
           case 11:
@@ -21680,6 +21635,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.drawPenR = void 0;
+
+var _d = require("d3");
 
 var _colors = require("../utilities/colors");
 
@@ -21721,14 +21678,23 @@ function _asyncToGenerator(fn) {
 
 var drawPenR = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(svg, mapSettings, PenRData) {
-    var projection, width, height;
+    var projection, width, height, g;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             projection = mapSettings.projection, width = mapSettings.width, height = mapSettings.height;
+            g = svg.select('g');
             PenRData.then(function (data) {
-              var g = svg.select('g');
+              console.log(data);
+              var groupByProvince = (0, _d.group)(data, function (d) {
+                return d.province;
+              });
+              var groupByCity = (0, _d.group)(data, function (d) {
+                return d.city;
+              });
+              console.log(groupByProvince);
+              console.log(groupByCity);
               g.append('g').attr('id', 'p_r_locations').selectAll('circle').data(data).enter().append('circle').attr('class', 'circle').attr('r', '1').attr('cx', function (d) {
                 return projection([d.longitude, d.latitude])[0];
               }).attr('cy', function (d) {
@@ -21736,10 +21702,9 @@ var drawPenR = /*#__PURE__*/function () {
               }).attr('fill', _colors.colors.blue).append('title').text(function (d) {
                 return d.name;
               });
-              console.log(data);
             });
 
-          case 2:
+          case 3:
           case "end":
             return _context.stop();
         }
@@ -21754,7 +21719,7 @@ var drawPenR = /*#__PURE__*/function () {
 
 exports.drawPenR = drawPenR;
 
-},{"../utilities/colors":40}],36:[function(require,module,exports){
+},{"../utilities/colors":40,"d3":31}],36:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22017,15 +21982,15 @@ var gemeenteNL = './static/data/gemeente_2020.topojson';
 var openparkingPenR = './static/data/openparkingPenR.csv';
 var geoGemeente = 'https://cartomap.github.io/nl/wgs84/gemeente_2020.geojson';
 var geoProvincie = 'https://cartomap.github.io/nl/wgs84/provincie_2020.geojson';
-var scale = 7000;
+var scale = 6000;
 var centerLat = 5.5;
-var width = window.innerWidth;
-var height = window.innerHeight;
+var width = 800;
+var height = 600;
 var mapSettings = {
   width: width,
   height: height,
-  projection: (0, _d.geoMercator)().scale(scale).center([5.5584, 52.2093656]),
-  title: "P+R Mogelijkheden per profincie."
+  projection: (0, _d.geoMercator)().scale(scale).center([5.5584, 52.20936]),
+  title: 'P+R Mogelijkheden per profincie.'
 };
 (0, _d.select)(window).on('resize', update());
 
@@ -22034,9 +21999,8 @@ function update() {
   height = window.innerHeight;
 }
 
-var svg = (0, _d.select)('svg').attr('viewBox', [0, 0, 900, 600]).attr('width', "100%").attr('height', "100%");
-var g = svg.append('g').attr("id", 'nl'); // const g = svg.append('g');
-
+var svg = (0, _d.select)('svg').attr('viewBox', [0, 0, 800, 600]).attr('width', '100%').attr('height', '100%');
+svg.append('g').attr('id', 'nl');
 var PenRData = (0, _prepData.prepCSV)(openparkingPenR);
 var provinceData = (0, _prepData.prepJSON)(provinceNL);
 var gemeenteData = (0, _prepData.prepJSON)(gemeenteNL);
@@ -22070,8 +22034,6 @@ function _combineNLData() {
   return _combineNLData.apply(this, arguments);
 }
 
-console.log(combineNLData());
-
 function createViz() {
   return _createViz.apply(this, arguments);
 }
@@ -22082,17 +22044,12 @@ function _createViz() {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            _context2.next = 2;
+            // await drawProvinceNL(svg, mapSettings, nlData);
+            (0, _components.drawNL)(svg, mapSettings, nlData);
+            _context2.next = 3;
             return (0, _components.drawPenR)(svg, mapSettings, PenRData);
 
-          case 2:
-            _context2.next = 4;
-            return (0, _components.drawNL)(svg, mapSettings, nlData);
-
-          case 4:
-            update();
-
-          case 5:
+          case 3:
           case "end":
             return _context2.stop();
         }
@@ -22102,7 +22059,6 @@ function _createViz() {
   return _createViz.apply(this, arguments);
 }
 
-;
 createViz();
 
 },{"./components":37,"./utilities/prepData":41,"d3":31,"regenerator-runtime/runtime":32}],40:[function(require,module,exports){
@@ -22291,12 +22247,9 @@ function _prepCSV() {
 
           case 2:
             data = _context2.sent;
-            console.log(data);
-            (0, _transform.uniqueObjects)(data);
-            console.log(data);
             return _context2.abrupt("return", data);
 
-          case 7:
+          case 4:
           case "end":
             return _context2.stop();
         }

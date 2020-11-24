@@ -15,7 +15,7 @@ import { zoomMap } from '../helpers'
 export const drawProvinceNL = async (svg, mapSettings, nl) => {
 const {projection, width, height} = mapSettings
 	const g = svg.select('g');
-	const zoomMap = zoom().scaleExtent([2, 8]).on('zoom', zoomed);
+	const zoomMap = zoom().scaleExtent([1, 8]).on('zoom', zoomed);
 	const path = geoPath();
 	svg.on('click', reset);
 
@@ -53,8 +53,6 @@ const {projection, width, height} = mapSettings
 		// svg.selectAll('.active').attr('class', 'null').on('click', reset);
 	});
 	
-
-
 	function reset() {
 			
 			select('.province')
@@ -74,7 +72,6 @@ const {projection, width, height} = mapSettings
 	
 	function clicked(event, d) {
 
-			console.log(path.bounds(d))
 			const [[x0, y0], [x1, y1]] = path.bounds(d);
 			event.stopPropagation();
 

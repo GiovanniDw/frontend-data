@@ -21451,6 +21451,234 @@ Object.defineProperty(exports, '__esModule', { value: true });
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.drawNL = void 0;
+
+var _d2 = require("d3");
+
+var _topojsonClient = require("topojson-client");
+
+var _colors = require("../utilities/colors");
+
+function _slicedToArray(arr, i) {
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+}
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) {
+    arr2[i] = arr[i];
+  }
+
+  return arr2;
+}
+
+function _iterableToArrayLimit(arr, i) {
+  if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+}
+
+var drawNL = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(svg, mapSettings, nl) {
+    var projection, width, height, g, zoomMap, path, provinces, gemeentes, reset, clicked, zoomed;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            zoomed = function _zoomed(event) {
+              var transform = event.transform;
+              g.attr('transform', transform);
+              g.attr('stroke-width', 1 / transform.k);
+            };
+
+            clicked = function _clicked(event, d) {
+              var _path$bounds = path.bounds(d),
+                  _path$bounds2 = _slicedToArray(_path$bounds, 2),
+                  _path$bounds2$ = _slicedToArray(_path$bounds2[0], 2),
+                  x0 = _path$bounds2$[0],
+                  y0 = _path$bounds2$[1],
+                  _path$bounds2$2 = _slicedToArray(_path$bounds2[1], 2),
+                  x1 = _path$bounds2$2[0],
+                  y1 = _path$bounds2$2[1];
+
+              event.stopPropagation();
+              provinces.transition().style('stroke', "white").attr('class', 'active'); // .select('path')
+              // .transition()
+              // .duration(1000)
+              // .style('fill', colors.red)
+              // .style('stroke', colors.darkGray);
+
+              (0, _d2.select)(this).transition().style('stroke', 'green');
+              svg.selectAll('path');
+              svg.transition().duration(750).call(zoomMap.transform, _d2.zoomIdentity.translate(width / 2, height / 2).scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height))).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), (0, _d2.pointer)(event, svg.node()));
+            };
+
+            reset = function _reset() {
+              provinces.transition().style('fill', null).attr('class', null);
+              svg.transition().duration(750).call(zoomMap.transform, _d2.zoomIdentity, (0, _d2.zoomTransform)(svg.node()).invert([width / 2, height / 2])); // select('.province')
+              // .transition()
+              // .duration(760)
+              // .style('fill-opacity', '1');
+              // select(this)
+              // 	.transition()
+              // 	.duration(750)
+              // 	.call(
+              // 		zoomMap.transform,
+              // 		zoomIdentity,
+              // 		zoomTransform(svg.node()).invert([width / 2, height / 2])
+              // 	);
+            };
+
+            projection = mapSettings.projection, width = mapSettings.width, height = mapSettings.height;
+            g = svg.select('g');
+            zoomMap = (0, _d2.zoom)().scaleExtent([1, 8]).on('zoom', zoomed);
+            path = (0, _d2.geoPath)();
+            provinces = g.append('g');
+            gemeentes = g.append('g');
+            svg.on('click', reset);
+            nl.then(function (data) {
+              var pathGenerator = path.projection(projection); // const province = mesh(data, data.objects.provincie_2020, (a,b) => a !== b );
+              // const gemeente = feature(data, data.objects.gemeente_2020);
+
+              var gemeente = (0, _topojsonClient.feature)(data, data.objects.gemeente_2020);
+              var province = (0, _topojsonClient.feature)(data, data.objects.provincie_2020);
+              var provinceBorder = (0, _topojsonClient.mesh)(data, data.objects.gemeente_2020, function (a, b) {
+                return a !== b;
+              });
+              gemeentes.attr('id', 'gemeentes').selectAll('path').data(gemeente.features).enter().append('path').attr('d', path).attr('class', 'gemeente-border').on('click', reset);
+              provinces.attr('id', 'provinces').selectAll('path').data(province.features).enter().append('path').attr('d', path).attr('class', 'province').on('click', clicked);
+              g.append('path').datum(provinceBorder).attr('id', 'province-borders').attr('d', path); // provinces
+              // 	.attr('id', 'province')
+              // 	.datum(province)
+              // 	.attr('fill', 'none')
+              // 	.attr('stroke', 'none')
+              // 	.attr('stroke-linejoin', 'round')
+              // 	.attr('d', path)
+              // 	.append('title')
+              // 	.text((d) => d.properties.statnaam);
+              // provinces
+              // 	.attr('id', 'provinces')
+              // 	.attr('fill', colors.lightGreen)
+              // 	.attr('stroke', colors.light)
+              // 	.selectAll('path')
+              // 	.data(province.features)
+              // 	.join('path')
+              // 	.attr('d', path)
+              // 	.on('click', clicked);
+              // provinces
+              // 	.append('path')
+              // 	.attr('class', 'province')
+              // 	.datum(gemeente)
+              // 	.attr('fill', 'none')
+              // 	.attr('stroke', 'none')
+              // 	.attr('stroke-linejoin', 'round')
+              // 	.attr('d', path)
+              // 	.append('title').text((d) => d.properties.statnaam)
+              // provinces.append('g')
+              // 	.attr('fill', 'none')
+              // 	.attr('stroke', 'red')
+              // 	.selectAll('path')
+              // 	.attr('fill', colors.lightGreen);
+              // svg.call(zoomMap);
+              // return svg.node()
+            });
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+
+  return function drawNL(_x, _x2, _x3) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+exports.drawNL = drawNL;
+
+},{"../utilities/colors":40,"d3":31,"topojson-client":33}],35:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 exports.drawPenR = void 0;
 
 var _colors = require("../utilities/colors");
@@ -21508,6 +21736,7 @@ var drawPenR = /*#__PURE__*/function () {
               }).attr('fill', _colors.colors.blue).append('title').text(function (d) {
                 return d.name;
               });
+              console.log(data);
             });
 
           case 2:
@@ -21525,7 +21754,7 @@ var drawPenR = /*#__PURE__*/function () {
 
 exports.drawPenR = drawPenR;
 
-},{"../utilities/colors":39}],35:[function(require,module,exports){
+},{"../utilities/colors":40}],36:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21649,8 +21878,6 @@ var drawProvinceNL = /*#__PURE__*/function () {
             };
 
             clicked = function _clicked(event, d) {
-              console.log(path.bounds(d));
-
               var _path$bounds = path.bounds(d),
                   _path$bounds2 = _slicedToArray(_path$bounds, 2),
                   _path$bounds2$ = _slicedToArray(_path$bounds2[0], 2),
@@ -21674,7 +21901,7 @@ var drawProvinceNL = /*#__PURE__*/function () {
 
             projection = mapSettings.projection, width = mapSettings.width, height = mapSettings.height;
             g = svg.select('g');
-            zoomMap = (0, _d2.zoom)().scaleExtent([2, 8]).on('zoom', zoomed);
+            zoomMap = (0, _d2.zoom)().scaleExtent([1, 8]).on('zoom', zoomed);
             path = (0, _d2.geoPath)();
             svg.on('click', reset);
             nl.then(function (data) {
@@ -21703,7 +21930,7 @@ var drawProvinceNL = /*#__PURE__*/function () {
 
 exports.drawProvinceNL = drawProvinceNL;
 
-},{"../helpers":37,"../utilities/colors":39,"d3":31,"topojson-client":33}],36:[function(require,module,exports){
+},{"../helpers":38,"../utilities/colors":40,"d3":31,"topojson-client":33}],37:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21721,15 +21948,23 @@ Object.defineProperty(exports, "drawProvinceNL", {
     return _drawProvinceNL.drawProvinceNL;
   }
 });
+Object.defineProperty(exports, "drawNL", {
+  enumerable: true,
+  get: function get() {
+    return _drawNL.drawNL;
+  }
+});
 
 var _drawPenR = require("./drawPenR");
 
 var _drawProvinceNL = require("./drawProvinceNL");
 
-},{"./drawPenR":34,"./drawProvinceNL":35}],37:[function(require,module,exports){
+var _drawNL = require("./drawNL");
+
+},{"./drawNL":34,"./drawPenR":35,"./drawProvinceNL":36}],38:[function(require,module,exports){
 "use strict";
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 "use strict";
 
 require("regenerator-runtime/runtime");
@@ -21800,7 +22035,8 @@ function update() {
 }
 
 var svg = (0, _d.select)('svg').attr('viewBox', [0, 0, 900, 600]).attr('width', "100%").attr('height', "100%");
-var g = svg.append('g').attr("id", 'nl');
+var g = svg.append('g').attr("id", 'nl'); // const g = svg.append('g');
+
 var PenRData = (0, _prepData.prepCSV)(openparkingPenR);
 var provinceData = (0, _prepData.prepJSON)(provinceNL);
 var gemeenteData = (0, _prepData.prepJSON)(gemeenteNL);
@@ -21851,9 +22087,12 @@ function _createViz() {
 
           case 2:
             _context2.next = 4;
-            return (0, _components.drawProvinceNL)(svg, mapSettings, nlData);
+            return (0, _components.drawNL)(svg, mapSettings, nlData);
 
           case 4:
+            update();
+
+          case 5:
           case "end":
             return _context2.stop();
         }
@@ -21866,7 +22105,7 @@ function _createViz() {
 ;
 createViz();
 
-},{"./components":36,"./utilities/prepData":40,"d3":31,"regenerator-runtime/runtime":32}],39:[function(require,module,exports){
+},{"./components":37,"./utilities/prepData":41,"d3":31,"regenerator-runtime/runtime":32}],40:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21894,7 +22133,7 @@ var colors = {
 };
 exports.colors = colors;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22052,10 +22291,12 @@ function _prepCSV() {
 
           case 2:
             data = _context2.sent;
+            console.log(data);
             (0, _transform.uniqueObjects)(data);
+            console.log(data);
             return _context2.abrupt("return", data);
 
-          case 5:
+          case 7:
           case "end":
             return _context2.stop();
         }
@@ -22099,8 +22340,7 @@ function _getCSVData() {
   return _getCSVData.apply(this, arguments);
 }
 
-var combineDatasets = function combineDatasets(f, s) {
-  console.log(f); // const first = await handleTopoJson(f);
+var combineDatasets = function combineDatasets(f, s) {// const first = await handleTopoJson(f);
   // const second = await handleTopoJson(s);
   // const combinedData = {}
 };
@@ -22138,7 +22378,7 @@ function cleanData(row) {
   return data;
 }
 
-},{"./transform":41,"d3":31,"topojson-client":33}],41:[function(require,module,exports){
+},{"./transform":42,"d3":31,"topojson-client":33}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22274,8 +22514,9 @@ var uniqueObjects = function uniqueObjects(arr) {
   return _toConsumableArray(new Map(arr.map(function (item) {
     return [item.id, item];
   })).values());
-};
+}; //https://1loc.dev
+
 
 exports.uniqueObjects = uniqueObjects;
 
-},{}]},{},[38]);
+},{}]},{},[39]);

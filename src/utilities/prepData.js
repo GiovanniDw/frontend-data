@@ -7,18 +7,15 @@ import {removeFalsy, groupBy, toObject, slugify, uniqueObjects} from './transfor
 
 export async function prepJSON(url) {
 	let data = await getJSONData(url)
-	
         return data
 }
 function getJSONData(url) {
 	return json(url)
 }
 
-
+ 
 export async function prepCSV(url) {
 	let data = await getCSVData(url)
-	
-	uniqueObjects(data);
 	return data;
 }
 
@@ -26,19 +23,18 @@ async function getCSVData(url) {
 	try {
 		const data = await csv(url);
 		return data
-	} catch (err) {
-		
+	} catch (err) {	
 	}
-	
 }
 export const combineDatasets = (f, s) => {
 
-	console.log(f)
+	
 
 	// const first = await handleTopoJson(f);
 	// const second = await handleTopoJson(s);
 	// const combinedData = {}
 }
+
 
 
 function handleTopoJson(file) {
